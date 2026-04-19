@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { AppSettings, ModelProvider } from '@/lib/types';
+import { classifyExpense } from '@/lib/ai';
 
 interface Props {
   settings: AppSettings;
@@ -111,19 +112,8 @@ function ProviderDetail({ provider, isActive, onActivate, onUpdate }: {
   const testConnection = async () => {
     if (!provider.apiKey || !provider.model || !provider.baseUrl) return;
     setTesting('testing');
-    try {
-      const res = await fetch('/api/ai/classify', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name: '测试', amount: 1, kind: 'expense',
-          baseUrl: provider.baseUrl, apiKey: provider.apiKey, model: provider.model,
-        }),
-      });
-      setTesting(res.ok ? 'ok' : 'fail');
-    } catch {
-      setTesting('fail');
-    }
+    const result = await classifyExpense('测试', 1, provider);
+    setTesting(result ? 'ok' : 'fail');
   };
 
   return (

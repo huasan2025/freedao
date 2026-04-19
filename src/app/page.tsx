@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { AppData } from '@/lib/types';
 import { load, save } from '@/lib/storage';
+import { classifyExpense, classifyIncome } from '@/lib/ai';
 import RunwayHero from '@/components/RunwayHero';
 import ExpensePanel from '@/components/ExpensePanel';
 import IncomePanel from '@/components/IncomePanel';
@@ -129,62 +130,36 @@ export default function Home() {
       return;
     }
 
-    // Classify expenses
     for (const expense of expensesToClassify) {
-      try {
-        setClassifyStatus(`分类中 ${++processed}/${total}...`);
-        const res = await fetch('/api/ai/classify', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            name: expense.name, amount: expense.amount, kind: 'expense',
-            baseUrl: provider.baseUrl, apiKey: provider.apiKey, model: provider.model,
-          }),
-        });
-        if (res.ok) {
-          const result = await res.json();
-          if (result.category) {
-            success++;
-            update(d => ({
-              ...d,
-              expenses: d.expenses.map(e =>
-                e.id === expense.id
-                  ? { ...e, category: result.category, subCategory: result.subCategory || 'optional', classifiedBy: 'ai' as const }
-                  : e
-              ),
-            }));
-          }
-        }
-      } catch { /* skip failed items */ }
+      setClassifyStatus(`分类中 ${++processed}/${total}...`);
+      const result = await classifyExpense(expense.name, expense.amount, provider);
+      if (result?.category) {
+        success++;
+        update(d => ({
+          ...d,
+          expenses: d.expenses.map(e =>
+            e.id === expense.id
+              ? { ...e, category: result.category, subCategory: result.subCategory || 'optional', classifiedBy: 'ai' as const }
+              : e
+          ),
+        }));
+      }
     }
 
-    // Classify incomes
     for (const income of incomesToClassify) {
-      try {
-        setClassifyStatus(`分类中 ${++processed}/${total}...`);
-        const res = await fetch('/api/ai/classify', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            name: income.name, amount: income.amount, kind: 'income',
-            baseUrl: provider.baseUrl, apiKey: provider.apiKey, model: provider.model,
-          }),
-        });
-        if (res.ok) {
-          const result = await res.json();
-          if (result.type) {
-            success++;
-            update(d => ({
-              ...d,
-              incomes: d.incomes.map(i =>
-                i.id === income.id
-                  ? { ...i, type: result.type, classifiedBy: 'ai' as const }
-                  : i
-              ),
-            }));
-          }
-        }
-      } catch { /* skip failed items */ }
+      setClassifyStatus(`分类中 ${++processed}/${total}...`);
+      const result = await classifyIncome(income.name, income.amount, provider);
+      if (result?.type) {
+        success++;
+        update(d => ({
+          ...d,
+          incomes: d.incomes.map(i =>
+            i.id === income.id
+              ? { ...i, type: result.type, classifiedBy: 'ai' as const }
+              : i
+          ),
+        }));
+      }
     }
 
     setClassifyStatus(success === total ? `完成，已整理 ${total} 条` : `完成，成功 ${success}/${total} 条`);
