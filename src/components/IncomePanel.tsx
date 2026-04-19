@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { Income, ModelProvider, IncomeClassifyResult } from '@/lib/types';
 import { classifyIncome } from '@/lib/ai';
+import InsightCard from './InsightCard';
 
 const fmt = (n: number) => '¥' + Math.abs(Math.round(n)).toLocaleString('zh-CN');
 
@@ -147,10 +148,10 @@ function IncomeRow({ income, total, onDelete, onUpdate }: { income: Income; tota
           style={{
             background: 'transparent', border: 'none', cursor: 'pointer',
             color: 'var(--fg-3)', fontSize: 11, padding: '2px 6px',
-            opacity: 0.4, transition: 'opacity .15s, color .15s',
+            opacity: 0.8, transition: 'opacity .15s, color .15s',
           }}
           onMouseEnter={e => { e.currentTarget.style.opacity = '1'; e.currentTarget.style.color = 'var(--danger)'; }}
-          onMouseLeave={e => { e.currentTarget.style.opacity = '0.4'; e.currentTarget.style.color = 'var(--fg-3)'; }}
+          onMouseLeave={e => { e.currentTarget.style.opacity = '0.8'; e.currentTarget.style.color = 'var(--fg-3)'; }}
         >删除</button>
       )}
     </div>
@@ -499,42 +500,23 @@ export default function IncomePanel({ incomes, monthlyExpense, activeProvider, o
 
       {/* Insight */}
       {incomeTotal > 0 && (
-        <div style={{
-          marginTop: 20,
-          background: 'linear-gradient(180deg, rgba(255,186,92,0.05), rgba(255,186,92,0.02))',
-          borderLeft: '2px solid var(--amber)',
-          borderRadius: '4px 10px 10px 4px',
-          padding: '14px 18px',
-          display: 'flex', flexDirection: 'column', gap: 8,
-        }}>
-          <div style={{
-            display: 'flex', alignItems: 'center', gap: 8,
-            fontSize: 11, color: 'var(--amber)', fontWeight: 500,
-            letterSpacing: '0.08em', textTransform: 'uppercase',
-          }}>
-            <svg width="11" height="11" viewBox="0 0 12 12">
-              <path d="M6 1l1.2 3.3L10.5 5.5 7.2 6.7 6 10l-1.2-3.3L1.5 5.5l3.3-1.2z" fill="currentColor" opacity="0.9"/>
-            </svg>
-            自由洞察
-          </div>
-          <div style={{ fontSize: 13, lineHeight: 1.65, color: 'var(--fg-1)' }}>
-            {passiveTotal >= monthlyExpense ? (
-              <>被动收入已覆盖月支出，你正在<strong style={{ color: 'var(--ok)' }}>自由区间</strong>。继续扩大安全边际。</>
-            ) : passiveTotal > 0 ? (
-              <>
-                被动收入 <span className="mono" style={{ color: 'var(--fg-0)' }}>{fmt(passiveTotal)}</span> 覆盖了支出的{' '}
-                <span className="mono" style={{ color: 'var(--amber)' }}>{(passiveTotal / monthlyExpense * 100).toFixed(1)}%</span>。
-                {laborTotal > 0 && <>劳动收入 <span className="mono" style={{ color: 'var(--fg-0)' }}>{fmt(laborTotal)}</span> 维持跑道，但不是自由。</>}
-                {' '}目标：把被动收入做到 <span className="mono" style={{ color: 'var(--ok)' }}>{fmt(monthlyExpense)}</span>/月。
-              </>
-            ) : (
-              <>
-                当前所有收入都是劳动收入，停止工作 = 收入归零。
-                自由的关键：构建不依赖劳动时间的被动收入来源。
-              </>
-            )}
-          </div>
-        </div>
+        <InsightCard label="自由洞察">
+          {passiveTotal >= monthlyExpense ? (
+            <>被动收入已覆盖月支出，你正在<strong style={{ color: 'var(--ok)' }}>自由区间</strong>。继续扩大安全边际。</>
+          ) : passiveTotal > 0 ? (
+            <>
+              被动收入 <span className="mono" style={{ color: 'var(--fg-0)' }}>{fmt(passiveTotal)}</span> 覆盖了支出的{' '}
+              <span className="mono" style={{ color: 'var(--amber)' }}>{(passiveTotal / monthlyExpense * 100).toFixed(1)}%</span>。
+              {laborTotal > 0 && <>劳动收入 <span className="mono" style={{ color: 'var(--fg-0)' }}>{fmt(laborTotal)}</span> 维持跑道，但不是自由。</>}
+              {' '}目标：把被动收入做到 <span className="mono" style={{ color: 'var(--ok)' }}>{fmt(monthlyExpense)}</span>/月。
+            </>
+          ) : (
+            <>
+              当前所有收入都是劳动收入，停止工作 = 收入归零。
+              自由的关键：构建不依赖劳动时间的被动收入来源。
+            </>
+          )}
+        </InsightCard>
       )}
     </section>
   );

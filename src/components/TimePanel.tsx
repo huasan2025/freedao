@@ -1,18 +1,30 @@
 'use client';
 
 import { TimeCategory } from '@/lib/types';
+import InsightCard from './InsightCard';
 
 interface Props {
   categories: TimeCategory[];
+  laborIncome: number;
   onChange: (cats: TimeCategory[]) => void;
 }
 
-export default function TimePanel({ categories, onChange }: Props) {
+const FALLBACK_HOURLY = 200;
+
+export default function TimePanel({ categories, laborIncome, onChange }: Props) {
   const data = categories.map(c => ({ ...c, monthHours: c.hoursPerWeek * 4.3 }));
   const totalWeek = categories.reduce((s, c) => s + c.hoursPerWeek, 0);
   const totalMonth = totalWeek * 4.3;
   const serviceWeek = categories.find(c => c.id === 'service')?.hoursPerWeek ?? 0;
   const incomePct = totalWeek > 0 ? (serviceWeek / totalWeek) * 100 : 0;
+
+  const hourlyRate = serviceWeek > 0 && laborIncome > 0
+    ? Math.round(laborIncome / (serviceWeek * 4.3))
+    : FALLBACK_HOURLY;
+  const hourlyFromUserData = serviceWeek > 0 && laborIncome > 0;
+  const targetWeek = Math.max(8, serviceWeek + 2);
+  const addHoursMonth = Math.max(0, targetWeek - serviceWeek) * 4.3;
+  const projectedIncome = Math.round(addHoursMonth * hourlyRate);
 
   const handleChange = (id: string, value: number) => {
     onChange(categories.map(c => c.id === id ? { ...c, hoursPerWeek: Math.max(0, value) } : c));
@@ -141,37 +153,25 @@ export default function TimePanel({ categories, onChange }: Props) {
 
       {/* Insight */}
       {totalWeek > 0 && (
-        <div style={{
-          marginTop: 20,
-          background: 'linear-gradient(180deg, rgba(255,186,92,0.05), rgba(255,186,92,0.02))',
-          borderLeft: '2px solid var(--amber)',
-          borderRadius: '4px 10px 10px 4px',
-          padding: '14px 18px',
-          display: 'flex', flexDirection: 'column', gap: 8,
-        }}>
-          <div style={{
-            display: 'flex', alignItems: 'center', gap: 8,
-            fontSize: 11, color: 'var(--amber)', fontWeight: 500,
-            letterSpacing: '0.08em', textTransform: 'uppercase',
-          }}>
-            <svg width="11" height="11" viewBox="0 0 12 12">
-              <path d="M6 1l1.2 3.3L10.5 5.5 7.2 6.7 6 10l-1.2-3.3L1.5 5.5l3.3-1.2z" fill="currentColor" opacity="0.9"/>
-            </svg>
-            时间洞察
-          </div>
-          <div style={{ fontSize: 13, lineHeight: 1.65, color: 'var(--fg-1)' }}>
-            每周{' '}
-            <span className="mono" style={{ color: 'var(--fg-0)' }}>{totalWeek}h</span> 中，
-            直接产生收入的时间占{' '}
-            <span className="mono" style={{ color: 'var(--amber)' }}>{incomePct.toFixed(1)}%</span>。
-            {serviceWeek < 8 && (
-              <>
-                建议将 &ldquo;接单 / 服务&rdquo; 提高到每周{' '}
-                <span className="mono" style={{ color: 'var(--fg-0)' }}>8h</span> 以上。
-              </>
-            )}
-          </div>
-        </div>
+        <InsightCard label="时间洞察">
+          每周{' '}
+          <span className="mono" style={{ color: 'var(--fg-0)' }}>{totalWeek}h</span> 中，
+          直接产生收入的时间占{' '}
+          <span className="mono" style={{ color: 'var(--amber)' }}>{incomePct.toFixed(1)}%</span>。
+          {serviceWeek < targetWeek && projectedIncome > 0 && (
+            <>
+              {' '}建议将 &ldquo;接单 / 服务&rdquo; 提高到每周{' '}
+              <span className="mono" style={{ color: 'var(--fg-0)' }}>{targetWeek}h</span>
+              （{hourlyFromUserData ? '按你当前时薪' : '按参考时薪'}{' '}
+              <span className="mono" style={{ color: 'var(--fg-2)' }}>¥{hourlyRate}/h</span>
+              ），对应收入预期{' '}
+              <span className="mono" style={{ color: 'var(--ok)' }}>+¥{projectedIncome.toLocaleString('zh-CN')}</span>/月。
+            </>
+          )}
+          {serviceWeek >= targetWeek && (
+            <> 接单时间已达到目标。下一步：把一次性服务转化为<strong style={{ color: 'var(--amber)', fontWeight: 500 }}>产品化/被动收入</strong>。</>
+          )}
+        </InsightCard>
       )}
 
       {/* Empty guide */}

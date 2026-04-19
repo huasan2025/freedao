@@ -1,6 +1,8 @@
 'use client';
 
 import { useState, useMemo } from 'react';
+import InsightCard from './InsightCard';
+import PaywallModal from './PaywallModal';
 
 const fmt = (n: number) => '¥' + Math.abs(Math.round(n)).toLocaleString('zh-CN');
 
@@ -281,6 +283,7 @@ export default function PlanPanel({ savings, monthlyExpense, monthlyIncome }: Pr
     { id: 's2', name: '激进省钱 + 接单', icon: '◆', expenseReduce: 25, incomeAdd: 2000, cashAdd: 0 },
   ]);
   const [activeScenario, setActiveScenario] = useState<string | null>(null);
+  const [paywallOpen, setPaywallOpen] = useState(false);
 
   const applyScenario = (s: Scenario) => {
     setExpenseReduce(s.expenseReduce);
@@ -449,36 +452,22 @@ export default function PlanPanel({ savings, monthlyExpense, monthlyIncome }: Pr
           </div>
 
           {/* AI insight */}
-          <div style={{
-            marginTop: 20,
-            background: 'linear-gradient(180deg, rgba(255,186,92,0.05), rgba(255,186,92,0.02))',
-            borderLeft: '2px solid var(--amber)',
-            borderRadius: '4px 10px 10px 4px',
-            padding: '14px 18px',
-            display: 'flex', flexDirection: 'column', gap: 8,
-          }}>
-            <div style={{
-              display: 'flex', alignItems: 'center', gap: 8,
-              fontSize: 11, color: 'var(--amber)', fontWeight: 500,
-              letterSpacing: '0.08em', textTransform: 'uppercase',
-            }}>
-              <svg width="11" height="11" viewBox="0 0 12 12">
-                <path d="M6 1l1.2 3.3L10.5 5.5 7.2 6.7 6 10l-1.2-3.3L1.5 5.5l3.3-1.2z" fill="currentColor" opacity="0.9" />
-              </svg>
-              AI 解读
-            </div>
-            <div style={{ fontSize: 13, lineHeight: 1.65, color: 'var(--fg-1)' }}>
-              {sim.runway === Infinity ? (
-                <>总收支已平衡，跑道不再消耗。但这不是终点 —— 真正的自由是<strong style={{ color: 'var(--amber)' }}>被动收入覆盖所有支出</strong>，让你不用时间换钱也能活。</>
-              ) : deltaFromCurrent > 3 ? (
-                <>这组参数让跑道延长 <span className="mono" style={{ color: 'var(--amber)' }}>+{deltaFromCurrent.toFixed(1)} 个月</span>，多出 <span className="mono" style={{ color: 'var(--fg-0)' }}>{Math.round(deltaFromCurrent * 30)} 天</span>缓冲时间。用这些时间构建<strong style={{ color: 'var(--ok)' }}>被动收入来源</strong> —— 跑道是手段，被动收入才是目的。</>
-              ) : deltaFromCurrent < -1 ? (
-                <>当前参数让跑道<strong style={{ color: 'oklch(0.80 0.14 25)' }}>缩短 {Math.abs(deltaFromCurrent).toFixed(1)} 个月</strong>。仅靠一次性现金无法抵消月度差额的累积，节流 + 开源是更稳的组合。</>
-              ) : (
-                <>变化较小。跑道延长只是缓冲，核心是<strong style={{ color: 'var(--fg-0)' }}>增加被动收入</strong>。劳动收入维持生存，被动收入通往自由。</>
-              )}
-            </div>
-          </div>
+          <InsightCard label="AI 解读" onMore={() => setPaywallOpen(true)} moreLabel="商机发现">
+            {sim.runway === Infinity ? (
+              <>总收支已平衡，跑道不再消耗。但这不是终点 —— 真正的自由是<strong style={{ color: 'var(--amber)' }}>被动收入覆盖所有支出</strong>，让你不用时间换钱也能活。</>
+            ) : deltaFromCurrent > 3 ? (
+              <>这组参数让跑道延长 <span className="mono" style={{ color: 'var(--amber)' }}>+{deltaFromCurrent.toFixed(1)} 个月</span>，多出 <span className="mono" style={{ color: 'var(--fg-0)' }}>{Math.round(deltaFromCurrent * 30)} 天</span>缓冲时间。用这些时间构建<strong style={{ color: 'var(--ok)' }}>被动收入来源</strong> —— 跑道是手段，被动收入才是目的。</>
+            ) : deltaFromCurrent < -1 ? (
+              <>当前参数让跑道<strong style={{ color: 'oklch(0.80 0.14 25)' }}>缩短 {Math.abs(deltaFromCurrent).toFixed(1)} 个月</strong>。仅靠一次性现金无法抵消月度差额的累积，节流 + 开源是更稳的组合。</>
+            ) : (
+              <>变化较小。跑道延长只是缓冲，核心是<strong style={{ color: 'var(--fg-0)' }}>增加被动收入</strong>。劳动收入维持生存，被动收入通往自由。</>
+            )}
+          </InsightCard>
+          <PaywallModal
+            open={paywallOpen}
+            variant="opportunity"
+            onClose={() => setPaywallOpen(false)}
+          />
         </section>
 
         {/* Scenarios */}

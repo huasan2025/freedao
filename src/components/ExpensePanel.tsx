@@ -3,6 +3,8 @@
 import { useState, useEffect, useRef } from 'react';
 import { Expense, ModelProvider, ClassifyResult } from '@/lib/types';
 import { classifyExpense } from '@/lib/ai';
+import InsightCard from './InsightCard';
+import PaywallModal from './PaywallModal';
 
 const fmt = (n: number) => '¥' + Math.abs(Math.round(n)).toLocaleString('zh-CN');
 
@@ -153,10 +155,10 @@ function ExpenseRow({
             style={{
               background: 'transparent', border: 'none', cursor: 'pointer',
               color: 'var(--fg-3)', fontSize: 11, padding: '2px 6px',
-              opacity: 0.4, transition: 'opacity .15s, color .15s',
+              opacity: 0.8, transition: 'opacity .15s, color .15s',
             }}
             onMouseEnter={e => { e.currentTarget.style.opacity = '1'; e.currentTarget.style.color = 'var(--danger)'; }}
-            onMouseLeave={e => { e.currentTarget.style.opacity = '0.4'; e.currentTarget.style.color = 'var(--fg-3)'; }}
+            onMouseLeave={e => { e.currentTarget.style.opacity = '0.8'; e.currentTarget.style.color = 'var(--fg-3)'; }}
           >
             删除
           </button>
@@ -176,44 +178,19 @@ function ExpenseRow({
   );
 }
 
-function InsightCard({ children }: { children: React.ReactNode }) {
-  return (
-    <div style={{
-      marginTop: 20,
-      background: 'linear-gradient(180deg, rgba(255,186,92,0.05), rgba(255,186,92,0.02))',
-      borderLeft: '2px solid var(--amber)',
-      borderRadius: '4px 10px 10px 4px',
-      padding: '14px 18px',
-      display: 'flex', flexDirection: 'column', gap: 8,
-    }}>
-      <div style={{
-        display: 'flex', alignItems: 'center', gap: 8,
-        fontSize: 11, color: 'var(--amber)', fontWeight: 500,
-        letterSpacing: '0.08em', textTransform: 'uppercase',
-      }}>
-        <svg width="11" height="11" viewBox="0 0 12 12">
-          <path d="M6 1l1.2 3.3L10.5 5.5 7.2 6.7 6 10l-1.2-3.3L1.5 5.5l3.3-1.2z" fill="currentColor" opacity="0.9"/>
-        </svg>
-        省钱洞察
-      </div>
-      <div style={{ fontSize: 13, lineHeight: 1.65, color: 'var(--fg-1)' }}>
-        {children}
-      </div>
-    </div>
-  );
-}
-
 /* ── Main component ─────────────────────────────────────────────────── */
 
 interface Props {
   expenses: Expense[];
+  savings: number;
+  monthlyDeficit: number;
   activeProvider?: ModelProvider;
   onAdd: (e: Omit<Expense, 'id' | 'createdAt'>) => void;
   onDelete: (id: string) => void;
   onUpdate: (e: Expense) => void;
 }
 
-export default function ExpensePanel({ expenses, activeProvider, onAdd, onDelete, onUpdate }: Props) {
+export default function ExpensePanel({ expenses, savings, monthlyDeficit, activeProvider, onAdd, onDelete, onUpdate }: Props) {
   const [showForm, setShowForm] = useState(false);
   const [name, setName] = useState('');
   const [amount, setAmount] = useState('');
@@ -221,6 +198,7 @@ export default function ExpensePanel({ expenses, activeProvider, onAdd, onDelete
   const [subCategory, setSubCategory] = useState<Expense['subCategory']>('required');
   const [classifying, setClassifying] = useState(false);
   const [aiResult, setAiResult] = useState<ClassifyResult | null>(null);
+  const [paywallOpen, setPaywallOpen] = useState(false);
   const classifyTimer = useRef<ReturnType<typeof setTimeout>>(null);
   const lastClassified = useRef('');
 
@@ -523,19 +501,57 @@ export default function ExpensePanel({ expenses, activeProvider, onAdd, onDelete
       )}
 
       {/* Insight card */}
-      {total > 0 && (
-        <InsightCard>
-          <div>
-            <span style={{ color: 'var(--fg-2)' }}>提示 · </span>
-            检查可选消费项，
-            {consumeOptional > 0 ? (
-              <>减半可选消费 <span className="mono" style={{ color: 'var(--fg-0)' }}>{fmt(consumeOptional)}</span> 可以<span style={{ color: 'var(--ok)' }}> 月省 <span className="mono">{fmt(consumeOptional / 2)}</span></span>。</>
-            ) : (
-              <>你的可选消费为零，支出结构很健康。</>
-            )}
-          </div>
-        </InsightCard>
-      )}
+      {total > 0 && (() => {
+        const topOptional = [...optionalExpenses].sort((a, b) => b.amount - a.amount)[0];
+        const monthSave = topOptional ? Math.round(topOptional.amount / 2) : 0;
+        const yearSave = monthSave * 12;
+        const runwayDeltaDays = (() => {
+          if (!topOptional || monthlyDeficit <= 0 || savings <= 0) return 0;
+          const oldRunway = savings / monthlyDeficit;
+          const newDeficit = Math.max(1, monthlyDeficit - monthSave);
+          const newRunway = savings / newDeficit;
+          return Math.max(0, Math.round((newRunway - oldRunway) * 30));
+        })();
+
+        return (
+          <>
+            <InsightCard label="省钱洞察" onMore={() => setPaywallOpen(true)} moreLabel="查看更多建议">
+              {topOptional ? (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                  <div>
+                    <span style={{ color: 'var(--fg-2)' }}>AI 建议 · </span>
+                    可选消费 Top1 <strong style={{ color: 'var(--fg-0)', fontWeight: 500 }}>{topOptional.name}</strong>
+                    （<span className="mono" style={{ color: 'var(--fg-0)' }}>{fmt(topOptional.amount)}</span>/月）
+                    若减半，
+                    <span style={{ color: 'var(--ok)' }}> 月省 <span className="mono">{fmt(monthSave)}</span></span>
+                    、<span style={{ color: 'var(--ok)' }}>年省 <span className="mono">{fmt(yearSave)}</span></span>
+                    {runwayDeltaDays > 0 && (
+                      <>，跑道延长 <span className="mono" style={{ color: 'var(--amber)' }}>+{runwayDeltaDays} 天</span></>
+                    )}
+                    。
+                  </div>
+                  {consumeOptional > monthSave && (
+                    <div style={{ color: 'var(--fg-2)', fontSize: 12 }}>
+                      可选消费合计 <span className="mono">{fmt(consumeOptional)}</span>／月 · 整体再精简 10% 可额外{' '}
+                      <span style={{ color: 'var(--ok)' }}>月省 <span className="mono">{fmt(Math.round(consumeOptional * 0.1))}</span></span>。
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <div>
+                  <span style={{ color: 'var(--fg-2)' }}>提示 · </span>
+                  你的可选消费为零，支出结构已经很健康。把重点放在<strong style={{ color: 'var(--amber)', fontWeight: 500 }}> 提升被动收入</strong>上。
+                </div>
+              )}
+            </InsightCard>
+            <PaywallModal
+              open={paywallOpen}
+              variant="savings"
+              onClose={() => setPaywallOpen(false)}
+            />
+          </>
+        );
+      })()}
     </section>
   );
 }

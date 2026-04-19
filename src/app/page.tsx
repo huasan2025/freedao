@@ -206,7 +206,9 @@ export default function Home() {
   const monthlyExpense = data.expenses.reduce((s, e) => s + e.amount, 0);
   const monthlyIncome = data.incomes.reduce((s, i) => s + i.amount, 0);
   const passiveIncome = data.incomes.filter(i => i.type === 'passive').reduce((s, i) => s + i.amount, 0);
+  const laborIncome = data.incomes.filter(i => i.type === 'labor').reduce((s, i) => s + i.amount, 0);
   const gap = monthlyExpense - monthlyIncome;
+  const monthlyDeficit = Math.max(0, gap);
   const runwayMonths = gap > 0 ? data.savings / gap : Infinity;
   const hasData = monthlyExpense > 0 || monthlyIncome > 0;
   const runwayLabel = !hasData ? '—' : (runwayMonths === Infinity ? '∞' : runwayMonths.toFixed(1));
@@ -383,6 +385,8 @@ export default function Home() {
             }}>
               <ExpensePanel
                 expenses={data.expenses}
+                savings={data.savings}
+                monthlyDeficit={monthlyDeficit}
                 activeProvider={activeProvider}
                 onAdd={e => update(d => ({
                   ...d,
@@ -418,6 +422,7 @@ export default function Home() {
 
             <TimePanel
               categories={data.timeCategories}
+              laborIncome={laborIncome}
               onChange={cats => update(d => ({ ...d, timeCategories: cats }))}
             />
           </>

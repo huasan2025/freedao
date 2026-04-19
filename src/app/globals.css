@@ -18,8 +18,8 @@
   /* Text */
   --fg-0: #f5f5f4;
   --fg-1: #a6a6a3;
-  --fg-2: #6b6b68;
-  --fg-3: #44443f;
+  --fg-2: #9c9c97;
+  --fg-3: #848480;
 
   /* Brand: amber — the warmth of freedom */
   --amber: oklch(0.82 0.14 75);
@@ -63,8 +63,8 @@
 
   --fg-0: #1a1a18;
   --fg-1: #555550;
-  --fg-2: #8c8c85;
-  --fg-3: #b5b5ad;
+  --fg-2: #575752;
+  --fg-3: #707068;
 
   --amber: oklch(0.68 0.16 75);
   --amber-soft: oklch(0.60 0.14 75);
