@@ -484,7 +484,7 @@ export default function Home() {
         fontSize: 11, color: 'var(--fg-3)',
         borderTop: '1px solid var(--line)',
       }}>
-        <span className="mono">FREEDAO · 自由倒计时 v0.5.0</span>
+        <span className="mono">FREEDAO · 自由倒计时 v0.6.0</span>
         <span>&ldquo;看清跑道，才有自由。&rdquo;</span>
       </footer>
     </div>
