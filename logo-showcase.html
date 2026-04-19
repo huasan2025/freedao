@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Freedao — Logo Design Exploration</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500;600&family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            -webkit-font-smoothing: antialiased;
+            background: #FAFAFA;
+            color: #1A1A1A;
+            overflow-x: hidden;
+        }
+        .font-mono { font-family: 'JetBrains Mono', 'Courier New', monospace; }
+        body::before {
+            content: '';
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.03'/%3E%3C/svg%3E");
+            pointer-events: none; z-index: 9999;
+        }
+        html { scroll-behavior: smooth; }
+        .logo-card { transition: all 0.7s cubic-bezier(0.16, 1, 0.3, 1); }
+        .logo-card:hover { transform: translateY(-4px); }
+        .logo-aura {
+            position: absolute; inset: 0;
+            background: radial-gradient(circle, rgba(255,186,92,0.15) 0%, transparent 70%);
+            border-radius: 50%; transform: scale(0.5); opacity: 0;
+            transition: all 1s cubic-bezier(0.16, 1, 0.3, 1);
+            filter: blur(40px); pointer-events: none;
+        }
+        .logo-card:hover .logo-aura { transform: scale(1); opacity: 1; }
+        .divider-line {
+            width: 0; height: 1px; background: #1A1A1A; opacity: 0.2;
+            transition: width 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .logo-card:hover .divider-line { width: 100%; }
+        .tracking-ultra-wide { letter-spacing: 0.2em; }
+        .text-balance { text-wrap: balance; }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+    <script type="text/babel">
+        const { useState } = React;
+
+        // ── Variant 1: Ensō 禅圆 ──────────────────────────────
+        const LogoEnso = () => (
+          <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">
+            <g fill="none" stroke="currentColor" strokeLinecap="round">
+              {/* Incomplete circle — the "freedom gap" */}
+              <path
+                d="M 68 24 A 30 30 0 1 0 76 52"
+                strokeWidth="4.5"
+              />
+              {/* "You are here" dot — on the journey */}
+              <circle cx="68" cy="24" r="3.5" fill="currentColor" stroke="none"/>
+            </g>
+          </svg>
+        );
+
+        // ── Variant 2: Runway 跑道 ─────────────────────────────
+        const LogoRunway = () => (
+          <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">
+            <g fill="none" stroke="currentColor" strokeLinecap="round">
+              {/* The runway path — from grounded to ascending */}
+              <path
+                d="M 18 65 L 50 65 Q 72 65 78 42 L 82 28"
+                strokeWidth="3.5"
+              />
+              {/* Starting point */}
+              <circle cx="18" cy="65" r="4" fill="currentColor" stroke="none"/>
+              {/* Freedom destination — open circle */}
+              <circle cx="82" cy="28" r="4" fill="none" strokeWidth="2.5"/>
+            </g>
+          </svg>
+        );
+
+        // ── Variant 3: F-Mark 字母标记 ─────────────────────────
+        const LogoFMark = () => (
+          <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">
+            <g fill="none" stroke="currentColor" strokeLinecap="round" strokeWidth="4">
+              {/* Vertical stem */}
+              <line x1="35" y1="22" x2="35" y2="78"/>
+              {/* Top bar */}
+              <line x1="35" y1="22" x2="68" y2="22"/>
+              {/* Middle bar — shorter, creates the F */}
+              <line x1="35" y1="48" x2="58" y2="48"/>
+            </g>
+            {/* Accent dot at the end of middle bar */}
+            <circle cx="62" cy="48" r="3.5" fill="currentColor"/>
+            {/* Base accent — grounding dot */}
+            <circle cx="35" cy="78" r="3.5" fill="currentColor"/>
+          </svg>
+        );
+
+        // ── Variant 4: Rising Sun 日出 ─────────────────────────
+        const LogoRisingSun = () => (
+          <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">
+            <g fill="currentColor">
+              {/* Sun — rising semicircle */}
+              <path d="M 28 58 A 22 22 0 0 1 72 58 Z"/>
+            </g>
+            <g fill="none" stroke="currentColor">
+              {/* Horizon line */}
+              <line x1="18" y1="58" x2="82" y2="58" strokeWidth="2.5" strokeLinecap="round"/>
+              {/* Rays above sun */}
+              <line x1="50" y1="28" x2="50" y2="20" strokeWidth="2" strokeLinecap="round"/>
+              <line x1="32" y1="36" x2="27" y2="30" strokeWidth="2" strokeLinecap="round"/>
+              <line x1="68" y1="36" x2="73" y2="30" strokeWidth="2" strokeLinecap="round"/>
+            </g>
+          </svg>
+        );
+
+        // ── Variant 5: Abstract Dao 道 ─────────────────────────
+        const LogoDao = () => (
+          <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">
+            <g fill="none" stroke="currentColor" strokeLinecap="round">
+              {/* 辶 (walk radical) — flowing base stroke */}
+              <path
+                d="M 25 68 Q 50 68, 62 56 Q 74 44, 74 32"
+                strokeWidth="3.5"
+              />
+              {/* 首 (head) — simplified as stacked horizontal strokes */}
+              <line x1="38" y1="28" x2="62" y2="28" strokeWidth="3"/>
+              <line x1="38" y1="40" x2="58" y2="40" strokeWidth="2.5"/>
+              <line x1="38" y1="50" x2="54" y2="50" strokeWidth="2"/>
+              {/* Dot — the "eye" of 道 */}
+              <circle cx="48" cy="34" r="2.5" fill="currentColor" stroke="none"/>
+            </g>
+          </svg>
+        );
+
+        // ── Variant 6: Infinity Gate ∞门 ────────────────────────
+        const LogoInfinityGate = () => (
+          <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">
+            <g fill="none" stroke="currentColor" strokeLinecap="round" strokeWidth="3.5">
+              {/* Infinity path — the two loops */}
+              <path
+                d="M 50 50 C 50 35, 25 30, 25 50 C 25 70, 50 65, 50 50 C 50 35, 75 30, 75 50 C 75 70, 50 65, 50 50"
+              />
+            </g>
+            {/* Center crossing — gate accent */}
+            <circle cx="50" cy="50" r="3" fill="currentColor"/>
+          </svg>
+        );
+
+        const LogoShowcase = () => {
+            const logos = [
+                {
+                    Component: LogoEnso,
+                    title: 'Ensō',
+                    subtitle: '禅圆 — 未完成的圆',
+                    philosophy: '取自禅宗的「圆相」——一笔画成的不完整圆。缺口代表自由缺口（被动收入还差多少），圆点标记「你在这里」。当被动收入覆盖支出，圆就合上了。最少元素，最深含义。',
+                },
+                {
+                    Component: LogoRunway,
+                    title: 'Runway',
+                    subtitle: '跑道 — 从地面到起飞',
+                    philosophy: '一条从左延伸的水平线（跑道），在右侧弯曲上升（起飞）。实心点是当前位置，空心圆是自由目标。隐喻：你的存款维持着跑道，但目标是起飞——被动收入完全覆盖支出的那一刻。',
+                },
+                {
+                    Component: LogoFMark,
+                    title: 'F-Mark',
+                    subtitle: 'F — 几何字母标记',
+                    philosophy: '字母 F 的几何构造，代表 Freedao 的品牌首字母。中横杠末端的圆点是「自由节点」，底部圆点是「根基」。结构简洁，在极小尺寸（favicon）下依然清晰可辨。',
+                },
+                {
+                    Component: LogoRisingSun,
+                    title: 'Rising Sun',
+                    subtitle: '日出 — 地平线之上',
+                    philosophy: '半圆从地平线升起，三道光芒向上发散。地平线代表收支平衡的临界点，太阳升起代表被动收入超越支出——自由的破晓时刻。温暖，有力量感，带有东方意象。',
+                },
+                {
+                    Component: LogoDao,
+                    title: 'Dao',
+                    subtitle: '道 — 抽象汉字',
+                    philosophy: '「道」字的几何抽象：底部的走之底简化为一条流动曲线（路径），上部的「首」简化为递减的横线（递进的里程碑），中间的点是「见识」之眼。最具东方哲学感的方案。',
+                },
+                {
+                    Component: LogoInfinityGate,
+                    title: 'Infinity Gate',
+                    subtitle: '∞门 — 无限跑道',
+                    philosophy: '无限符号（∞）代表产品的核心目标——无限跑道。中心交叉点的圆点是自由的门槛。当你的收入循环自给自足，你就进入了无限。简洁的数学符号，直击产品理念。',
+                },
+            ];
+
+            return (
+                <div className="min-h-screen flex flex-col items-center py-20 px-6">
+                    {/* Header */}
+                    <div className="text-center mb-20 max-w-3xl">
+                        <h1 className="text-6xl md:text-7xl font-extralight tracking-wider mb-6">
+                            Freedao
+                        </h1>
+                        <p className="font-mono text-xs opacity-40 uppercase tracking-ultra-wide mb-8">
+                            看清跑道，才有自由 — Logo Design Exploration
+                        </p>
+                        <div className="w-12 h-[1px] bg-[#1A1A1A] mx-auto opacity-30"></div>
+                    </div>
+
+                    {/* Logo Grid */}
+                    <div className="max-w-7xl w-full grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-16 mb-32">
+                        {logos.map((logo, index) => (
+                            <div key={index} className="flex flex-col items-center logo-card cursor-pointer">
+                                <div className="w-64 h-64 mb-10 flex items-center justify-center relative">
+                                    <div className="logo-aura"></div>
+                                    <div className="w-32 h-32 relative z-10 logo-canvas">
+                                        <logo.Component />
+                                    </div>
+                                </div>
+                                <div className="text-center w-full px-4">
+                                    <h2 className="text-xl font-medium tracking-wider mb-2 uppercase">
+                                        {logo.title}
+                                    </h2>
+                                    <h3 className="text-xs font-mono opacity-50 tracking-widest mb-6">
+                                        {logo.subtitle}
+                                    </h3>
+                                    <p className="text-sm leading-relaxed opacity-70 text-left font-light text-balance">
+                                        {logo.philosophy}
+                                    </p>
+                                </div>
+                                <div className="divider-line mt-8 mx-auto"></div>
+                            </div>
+                        ))}
+                    </div>
+
+                    {/* Footer */}
+                    <div className="mt-32 max-w-2xl text-center">
+                        <p className="font-mono text-xs opacity-40 uppercase tracking-ultra-wide leading-loose">
+                            Generated with Logo Generator<br/>
+                            2026
+                        </p>
+                    </div>
+                </div>
+            );
+        };
+
+        ReactDOM.render(<LogoShowcase />, document.getElementById('root'));
+    </script>
+</body>
+</html>
