@@ -98,4 +98,4 @@ npm run tauri:build    # 产出 .dmg
 
 ## License
 
-MIT · 画伞（yangfan）· 2026
+MIT · 画伞· 2026
