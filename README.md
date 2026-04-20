@@ -12,11 +12,16 @@ Freedao 是给独立创业者的财务自由导航器：输入你的支出、收
 
 ## 下载
 
-👉 **[最新版 macOS 下载](https://github.com/huasan2025/freedao/releases/latest)**
+👉 **[最新版下载（macOS + Windows）](https://github.com/huasan2025/freedao/releases/latest)**
 
-目前只支持 macOS（Intel + Apple Silicon）。Windows / Linux 版后续补。
+| 平台 | 文件 | 说明 |
+|---|---|---|
+| macOS (Apple Silicon) | `Freedao_x.x.x_aarch64.dmg` | M1/M2/M3 芯片 |
+| Windows | `Freedao_x.x.x_x64-setup.exe` | Windows 10+ |
 
-### 首次打开提示"已损坏"怎么办
+Linux 版暂未提供，可自行从源码构建（下面有说明）。
+
+### macOS 首次打开提示"已损坏"怎么办
 
 因为 Freedao 没有 Apple Developer 签名（$99/年还在权衡），macOS 默认会拦截。两种解法：
 
@@ -29,6 +34,15 @@ xattr -cr /Applications/Freedao.app
 ```
 
 这一行命令的原理是什么？为什么能绕过安全检查？—— 见 [读懂代码的方法 2](https://github.com/huasan2025/freedao/blob/main/docs/xattr-explained.md)。
+
+### Windows 首次打开弹"Windows 已保护你的电脑"怎么办
+
+没有代码签名证书（EV 证书几百刀/年，还在权衡），Windows SmartScreen 会先拦一下。一次性解法：
+
+- 点弹窗左下角的 **"更多信息"**
+- 然后点 **"仍要运行"**
+
+以后双击正常启动。和 macOS 的 Gatekeeper 是一回事儿，本质都是"没花钱买证书的独立开发者，用户手动确认一下"。
 
 ---
 
@@ -88,10 +102,11 @@ npm run tauri:build    # 产出 .dmg
 
 - [x] v0.6.0 Web MVP：Dashboard / Log / Plan / Settings / AI 分类 / Waitlist
 - [x] v0.7.0 Tauri macOS 首发
+- [x] v0.8.0 Windows 版 + CI 自动打包（GitHub Actions）
 - [ ] Log 页直接编辑/删除记录
 - [ ] "月度" vs "单笔" 概念澄清
 - [ ] 移动端响应式
-- [ ] Windows / Linux Tauri build
+- [ ] Linux Tauri build（AppImage / deb）
 - [ ] 付费案例库：省钱库 + 赚钱库（[加入 Waitlist](https://my.feishu.cn/share/base/form/shrcnizYaLm11sTEQg8YoNjjThe)）
 
 ---

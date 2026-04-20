@@ -239,7 +239,7 @@
 </nav>
 
 <header class="hero">
-  <div class="hero-tag">v0.7.0 · macOS 首发</div>
+  <div class="hero-tag">v0.8.0 · macOS + Windows</div>
   <h1>距离自由<br><em>还差多少</em></h1>
   <p class="hero-sub">不是记账软件。是独立创业者的财务自由导航系统。</p>
   <div class="hero-formula">
@@ -247,13 +247,13 @@
   </div>
   <div class="cta-row">
     <a href="https://github.com/huasan2025/freedao/releases/latest" class="btn btn-primary">
-      下载 for macOS
+      下载最新版
     </a>
     <a href="https://github.com/huasan2025/freedao" class="btn btn-ghost">
       查看源码
     </a>
   </div>
-  <p class="btn-meta">Apple Silicon + Intel · 免费 · 开源 · 本地存储</p>
+  <p class="btn-meta">macOS (Apple Silicon) + Windows 10+ · 免费 · 开源 · 本地存储</p>
 </header>
 
 <div class="screenshot-wrap">
@@ -339,21 +339,21 @@
 <section id="download">
   <div class="section-inner">
     <div class="section-label">下载与安装</div>
-    <h2 class="section-title">macOS 首发</h2>
+    <h2 class="section-title">macOS + Windows</h2>
     <p class="section-lead">
-      目前只有 macOS 版本（Apple Silicon + Intel）。Windows / Linux 会随后跟上。<br>
-      因为还没买 Apple Developer 签名，首次打开会有一个小阻力，下面告诉你怎么过。
+      Linux 版暂时没打包，想用的朋友可以自己从源码构建（README 里有）。<br>
+      因为还没买代码签名证书，两个平台首次打开都会有一个小阻力，下面告诉你怎么过。
     </p>
 
     <div class="cta-row" style="justify-content: flex-start; margin-bottom: 16px;">
       <a href="https://github.com/huasan2025/freedao/releases/latest" class="btn btn-primary">
-        下载最新版 .dmg
+        前往 Release 页面下载
       </a>
     </div>
 
     <div class="install-box">
-      <h4>第一次打开提示"已损坏"？</h4>
-      <p>这是 macOS 安全机制的默认保护。两种解法，任选其一：</p>
+      <h4>macOS · 第一次打开提示"已损坏"？</h4>
+      <p>这是 macOS Gatekeeper 的默认保护。两种解法，任选其一：</p>
 
       <p style="margin-top: 18px;"><strong>方法 1 · 右键打开（小白推荐）</strong></p>
       <p>Finder 里找到 Freedao.app → 按住 <code class="mono">Control</code> 右键 → "打开" → 弹窗里再点"打开"。以后双击就正常了。</p>
@@ -362,6 +362,14 @@
       <pre>xattr -cr /Applications/Freedao.app</pre>
 
       <a href="https://github.com/huasan2025/freedao/blob/main/docs/xattr-explained.md" class="why-link">为什么这行命令就能解决？→</a>
+    </div>
+
+    <div class="install-box" style="margin-top: 24px;">
+      <h4>Windows · 第一次打开弹"Windows 已保护你的电脑"？</h4>
+      <p>这是 SmartScreen 对未签名 exe 的默认拦截，和 macOS Gatekeeper 是同一个意思。一次性解决：</p>
+
+      <p style="margin-top: 18px;"><strong>点"更多信息" → "仍要运行"</strong></p>
+      <p>安装器弹窗左下角会有一个不显眼的"更多信息"链接，点开后下面出现"仍要运行"按钮。装完以后再打开就不弹了。</p>
     </div>
   </div>
 </section>

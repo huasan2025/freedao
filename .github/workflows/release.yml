@@ -1,0 +1,82 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+jobs:
+  build:
+    permissions:
+      contents: write
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - platform: macos-latest
+            target: aarch64-apple-darwin
+            args: '--target aarch64-apple-darwin'
+          - platform: windows-latest
+            target: x86_64-pc-windows-msvc
+            args: ''
+
+    runs-on: ${{ matrix.platform }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.target }}
+
+      - name: Rust cache
+        uses: swatinem/rust-cache@v2
+        with:
+          workspaces: './src-tauri -> target'
+
+      - name: Install frontend dependencies
+        run: npm ci
+
+      - name: Build and release Tauri app
+        uses: tauri-apps/tauri-action@v0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tagName: ${{ github.ref_name }}
+          releaseName: 'Freedao ${{ github.ref_name }}'
+          releaseBody: |
+            ## 下载
+
+            - **macOS (Apple Silicon)**：`Freedao_x.x.x_aarch64.dmg`
+            - **Windows**：`Freedao_x.x.x_x64-setup.exe`（NSIS installer）
+
+            ## 首次打开会被系统拦一下，很正常
+
+            ### macOS
+
+            未签名的 app 会显示"已损坏"。两种解法：
+
+            - **右键打开（推荐）**：Finder 里 `Control` + 右键 → "打开" → 弹窗里再点"打开"
+            - **终端命令**：`xattr -cr /Applications/Freedao.app`
+
+            ### Windows
+
+            未签名的 exe 会触发 SmartScreen："Windows 已保护你的电脑"。
+
+            - 点左下角 **"更多信息"** → 然后点 **"仍要运行"**
+            - 和 macOS 的 Gatekeeper 是同一个意思，放心绕过即可
+
+            ## 原理解释
+
+            为什么未签名就要绕一下？见 <https://github.com/huasan2025/freedao/blob/main/docs/xattr-explained.md>
+          releaseDraft: true
+          prerelease: false
+          args: ${{ matrix.args }}
